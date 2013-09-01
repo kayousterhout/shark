@@ -18,6 +18,7 @@
 package shark.execution
 
 import java.util.{HashMap => JHashMap, List => JavaList}
+import java.util.concurrent.atomic.AtomicInteger
 
 import org.apache.hadoop.hive.metastore.api.FieldSchema
 import org.apache.hadoop.hive.ql.{Context, DriverContext}
@@ -90,8 +91,10 @@ class SparkTask extends HiveTask[SparkWork] with Serializable with LogHelper {
 
     terminalOp.initializeMasterOnAll()
 
-    // Set Spark's job description to be this query.
-    SharkEnv.sc.setJobDescription(work.pctx.getContext.getCmd)
+    // Set Spark's job description to be this query, along with a unique identifier.
+    val description = "SHARK-%s-%s".format(
+      SparkTask.getAndIncrementId(), work.pctx.getContext.getCmd)
+    SharkEnv.sc.setJobDescription(description)
 
     // Set the fair scheduler's pool.
     SharkEnv.sc.setLocalProperty("spark.scheduler.cluster.fair.pool",
@@ -167,3 +170,11 @@ class SparkTask extends HiveTask[SparkWork] with Serializable with LogHelper {
 
 }
 
+/** Class to generate IDs for each Shark job. */
+object SparkTask {
+  val nextId = new AtomicInteger(0)
+
+  def getAndIncrementId(): Int = {
+    return nextId.getAndIncrement()
+  }
+}
