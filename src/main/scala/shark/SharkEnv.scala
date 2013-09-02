@@ -53,7 +53,7 @@ object SharkEnv extends LogHelper {
         System.getenv("SPARK_HOME"),
         Nil,
         executorEnvVars)
-    sc.addSparkListener(new StatsReportListener())
+    //sc.addSparkListener(new StatsReportListener())
     sc.asInstanceOf[SharkContext]
   }
 

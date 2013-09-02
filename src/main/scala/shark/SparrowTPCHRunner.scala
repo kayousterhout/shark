@@ -35,7 +35,12 @@ object SparrowTPCHRunner {
       println("Expecting at least 8 statements to create denorm table")
       System.exit(-1)
     }
-    val sc = new SharkContext(System.getenv("MASTER"), "unusedFrameworkName")
+    val sc = new SharkContext(
+      System.getenv("MASTER"),
+      "unusedFrameworkName",
+      System.getenv("SPARK_HOME"),
+      Nil,
+      SharkEnv.executorEnvVars)
     SharkEnv.sc = sc
 
     val denormCreateStatements = statements.slice(0, 8)
