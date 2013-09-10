@@ -1,6 +1,7 @@
 package shark.sparrow
 
 import shark.SharkContext
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import shark.SharkEnv
@@ -17,6 +18,7 @@ object SparrowTPCHRunner {
       println("Expecting file name and query rate in arguments.")
       System.exit(-1);
     }
+    SharkContext.hiveconf.set("hive.root.logger", "INFO,console")
     val startDelayMs = 300 * 1000
     val t0 = System.currentTimeMillis()
     val source = scala.io.Source.fromFile(args(0))
@@ -70,6 +72,13 @@ object SparrowTPCHRunner {
 class QueryLaunchRunnable(sc : SharkContext, query: String) extends Runnable with Logging {
   def run() {
     logInfo("THREAD:" + Thread.currentThread().getId() + " QUERY:" + query.replace("\n", ""))
+    val description = "SHARK-%s-%s".format(
+      QueryLaunchRunnable.nextId.getAndIncrement(), query)
+    sc.setJobDescription(description)
     sc.sql(query)
   }
+}
+
+object QueryLaunchRunnable {
+  val nextId = new AtomicInteger(0)
 }
