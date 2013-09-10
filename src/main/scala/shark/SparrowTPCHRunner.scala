@@ -71,10 +71,13 @@ object SparrowTPCHRunner {
 
 class QueryLaunchRunnable(sc : SharkContext, query: String) extends Runnable with Logging {
   def run() {
+    val parts = query.split("--")
+    if (parts.size != 3) {
+      logError("Unable to parse query properly with comment! %s".format(query))
+    }
+    val query_with_id = "%s--%s %s--%s".format(
+      parts(0), QueryLaunchRunnable.nextId.getAndIncrement(), parts(1), parts(2))
     logInfo("THREAD:" + Thread.currentThread().getId() + " QUERY:" + query.replace("\n", ""))
-    val description = "SHARK-%s-%s".format(
-      QueryLaunchRunnable.nextId.getAndIncrement(), query)
-    sc.setJobDescription(description)
     sc.sql(query)
   }
 }
