@@ -75,10 +75,10 @@ class QueryLaunchRunnable(sc : SharkContext, query: String) extends Runnable wit
     if (parts.size != 3) {
       logError("Unable to parse query properly with comment! %s".format(query))
     }
-    val query_with_id = "%s--%s %s--%s".format(
+    val queryWithId = "%s--%s %s--%s".format(
       parts(0), QueryLaunchRunnable.nextId.getAndIncrement(), parts(1), parts(2))
     logInfo("THREAD:" + Thread.currentThread().getId() + " QUERY:" + query.replace("\n", ""))
-    sc.sql(query)
+    sc.sql(queryWithId)
   }
 }
 
